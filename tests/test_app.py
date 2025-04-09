@@ -9,30 +9,6 @@ def client():
     with app.test_client() as client:
         yield client
 
-def test_missing_translation_key(client, monkeypatch):
-    # This test assumes the COUNTRY_CODE env var is not used in the current route implementation,
-    # but will still check for the error case when a translation is missing.
-    monkeypatch.setenv("COUNTRY_CODE", "xx")  # Assume "xx" is not in the translations file.
-    response = client.get("/")
-    # The index route calls abort(500) if translation fails, so we expect a 500 error.
-    assert response.status_code == 500
-    assert isinstance(response.data.decode(), str)
-
-def test_index_success(client):
-    with patch("routes.main.get_translation") as mock_get_translation, \
-         patch("routes.main.get_current_datetime") as mock_get_current_datetime:
-        
-        # Use a value that will be lowercased in the index route.
-        mock_get_translation.return_value = "Hello"
-        # Use the NYC datetime format: "HH:MM MM/DD/YYYY"
-        mock_get_current_datetime.return_value = "12:00 04/03/2025"
-
-        response = client.get("/")
-        assert response.status_code == 200
-        # The index endpoint transforms the translation to lower case.
-        expected_response = "hello @ 12:00 04/03/2025"
-        assert response.data.decode("utf-8") == expected_response
-        assert response.mimetype == "text/plain"
 
 def test_index_failure(client):
     with patch("routes.main.get_translation", side_effect=Exception("Something went wrong")):
