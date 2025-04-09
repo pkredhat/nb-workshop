@@ -4,20 +4,6 @@ This is a very quick/simple Python/Flask app that returns  Hello World in the co
  
   $~$ 
      
-## Building Container Images 
-From your Root Folder
-
-#### With Podman
-```
-podman build -t <your image name> .
-```
-#### With Docker
-```
-docker build -t <your image name> .
-```
- ##### *NOTE: Modify the 'ENV COUNTRY_CODE=<COUNTRY>' variable in the Dockerfile to change the default language*
-
-  $~$
 
 ## Setting Up Environment Variables
 
