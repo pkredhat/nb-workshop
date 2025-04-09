@@ -125,4 +125,3 @@ XH=Molo  Lizwe!
 MY=မင်္ဂလာပါ  ကမ္ဘာ!  
 TI=ሰላም  ዓለም! 
 ```
-!evif esoht nosj.snoitalsnart eht porc dna tnenitnoc eno morf sedoc yrtnuoc evif esoohc !gge retsaE
