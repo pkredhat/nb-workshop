@@ -1,21 +1,29 @@
-from flask import Flask
+# app.py
+import sys
+import asyncio
+import producer
+import consumer
 from dotenv import load_dotenv
-import os
 
-# Load environment variables
 load_dotenv()
 
-app = Flask(__name__)
+async def main():
+    if len(sys.argv) < 2:
+        print("Usage: python app.py <produce|consume>")
+        return
 
-# Testing purposes
-from routes.main import get_translation
-from routes.main import get_current_datetime
+    command = sys.argv[1].lower()
 
-# Register routes
-from routes.main import main as main_blueprint
+    if command == "produce":
+        # Call produce.py's async produce function
+        await producer.produce()
 
-app.register_blueprint(main_blueprint)
+    elif command == "consume":
+        # Call the async consumer function
+        await consumer.consume()
 
-# PORT = 5001
-# if __name__ == "__main__":
-#     app.run(host="0.0.0.0", port=PORT, debug=True)
+    else:
+        print("Invalid argument. Use 'produce' or 'consume'.")
+
+if __name__ == "__main__":
+    asyncio.run(main())
