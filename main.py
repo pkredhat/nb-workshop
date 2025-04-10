@@ -1,3 +1,4 @@
+
 import os
 import asyncio
 import time
@@ -14,6 +15,13 @@ app = FastAPI(title="Real-Time Kafka Consumer")
 # Mount the public folder at /static to serve CSS, images, etc.
 app.mount("/static", StaticFiles(directory="public"), name="static")
 
+# Get the Kafka bootstrap servers without a default;
+# if not provided, we will disable the HTML page and consumer.
+KAFKA_BOOTSTRAP_SERVERS = os.environ.get("KAFKA_BOOTSTRAP_SERVERS")
+KAFKA_AVAILABLE = bool(KAFKA_BOOTSTRAP_SERVERS)
+if not KAFKA_AVAILABLE:
+    print("WARNING: KAFKA_BOOTSTRAP_SERVERS env var is not set. Disabling HTML and consumer startup.")
+
 # Define the default topic and assign it as the current topic.
 DEFAULT_TOPIC = "default-topic"
 current_topic = DEFAULT_TOPIC
@@ -26,7 +34,7 @@ active_connections: List[WebSocket] = []
 async def consume_kafka_messages(topic: str):
     consumer = AIOKafkaConsumer(
         topic,
-        bootstrap_servers=os.environ.get("KAFKA_BOOTSTRAP_SERVERS", "localhost:9092"),
+        bootstrap_servers=KAFKA_BOOTSTRAP_SERVERS,
         group_id=f"rewind-{int(time.time())}",
         auto_offset_reset="earliest"
     )
@@ -70,18 +78,19 @@ async def change_topic(topic_change: TopicChange):
         except asyncio.CancelledError:
             print("Previous consumer task cancelled")
     current_topic = new_topic
-    consumer_task = asyncio.create_task(consume_kafka_messages(current_topic))
+    if KAFKA_AVAILABLE:
+        consumer_task = asyncio.create_task(consume_kafka_messages(current_topic))
     return {"message": f"Topic changed to {new_topic}"}
 
 # Endpoint to list all available topics, ensure the default topic exists,
 # and filter out internal topics (like __consumer_offsets).
 @app.get("/topics")
 async def get_topics():
-    bootstrap_servers = os.environ.get("KAFKA_BOOTSTRAP_SERVERS", "localhost:9092")
-    admin_client = AIOKafkaAdminClient(bootstrap_servers=bootstrap_servers)
+    if not KAFKA_AVAILABLE:
+        raise HTTPException(status_code=503, detail="Kafka not configured.")
+    admin_client = AIOKafkaAdminClient(bootstrap_servers=KAFKA_BOOTSTRAP_SERVERS)
     await admin_client.start()
     try:
-        # List all topics from the Kafka cluster.
         topics = await admin_client.list_topics()
         topics_set = set(topics)
 
@@ -112,6 +121,12 @@ async def get_topics():
 # Serve index.html at the root.
 @app.get("/")
 async def read_index():
+    if not KAFKA_AVAILABLE:
+        return HTMLResponse(
+            "<h1>Error: KAFKA_BOOTSTRAP_SERVERS env var is not set.</h1>"
+            "<p>Please configure this environment variable to enable the application.</p>",
+            status_code=503
+        )
     from pathlib import Path
     index_file = Path("public") / "index.html"
     if not index_file.exists():
@@ -121,6 +136,9 @@ async def read_index():
 # WebSocket endpoint for real-time messages.
 @app.websocket("/ws")
 async def websocket_endpoint(websocket: WebSocket):
+    if not KAFKA_AVAILABLE:
+        await websocket.close()
+        return
     await websocket.accept()
     active_connections.append(websocket)
     try:
@@ -130,9 +148,13 @@ async def websocket_endpoint(websocket: WebSocket):
     except WebSocketDisconnect:
         active_connections.remove(websocket)
 
-# On startup, launch the Kafka consumer for the default topic.
+# On startup, launch the Kafka consumer for the default topic if Kafka is configured.
 @app.on_event("startup")
 async def startup_event():
     global consumer_task
-    consumer_task = asyncio.create_task(consume_kafka_messages(current_topic))
-    print("Startup event: Kafka consumer task created.")
+    if KAFKA_AVAILABLE:
+        consumer_task = asyncio.create_task(consume_kafka_messages(current_topic))
+        print("Startup event: Kafka consumer task created.")
+    else:
+        print("Startup event: Kafka is not configured; HTML and consumer are disabled.")
+
