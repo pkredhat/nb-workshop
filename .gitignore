@@ -1,0 +1,65 @@
+## Build artifacts
+bin/
+obj/
+out/
+
+## User-specific files
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+## Rider
+.idea/
+
+## VS Code
+.vscode/
+
+## ASP.NET
+appsettings.Development.json
+appsettings.Local.json
+appsettings.*.local.json
+secrets.json
+
+## Logs
+*.log
+Logs/
+
+## NuGet
+*.nupkg
+*.snupkg
+.nuget/
+packages/
+*.nuspec
+project.lock.json
+project.fragment.lock.json
+
+## DotCover
+*.dcvr
+
+## Test results
+TestResults/
+*.coverage
+*.coveragexml
+
+## Publish artifacts
+publish/
+*.Publish.xml
+
+## Temporary files
+~$*
+*.tmp
+*.temp
+
+## Others
+*.dbmdl
+*.jfm
+*.DS_Store
+Thumbs.db
+
+## Resharper
+_ReSharper*/
+*.DotSettings.user
+
+## dotnet watch
+**/Properties/launchSettings.json
