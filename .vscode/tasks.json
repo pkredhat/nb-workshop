@@ -1,0 +1,40 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+	  {
+		"label": "Install Requirements",
+		"type": "shell",
+		"command": "pip install -r requirements.txt",
+		"problemMatcher": []
+	  },
+	  {
+		"label": "Run Uvicorn",
+		"type": "shell",
+		"command": "uvicorn",
+		"args": [
+		  "main:app",
+		  "--host",
+		  "0.0.0.0",
+		  "--port",
+		  "8000",
+		  "--reload"
+		],
+		"presentation": {
+		  "echo": true,
+		  "reveal": "always",
+		  "panel": "shared"
+		},
+		"problemMatcher": []
+	  }
+	],
+	"compounds": [
+	  {
+		"label": "Build and Run VSC",
+		"dependsOn": [
+		  "Install Requirements",
+		  "Run Uvicorn"
+		],
+		"dependsOrder": "sequence"
+	  }
+	]
+  }  
