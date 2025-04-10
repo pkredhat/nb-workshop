@@ -1,6 +1,5 @@
 confluent_kafka
 aiokafka
-AIOKafkaAdminClient
 aioconsole
 fastapi
 uvicorn
