@@ -1,46 +1,63 @@
 import os
 import sys
 import asyncio
+import logging
+import argparse
 from aiokafka import AIOKafkaProducer
 
-async def produce():
-    print("Starting Kafka Producer...")
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+async def produce(topic: str):
+    logger.info("Starting Kafka Producer...")
     bootstrap_servers = os.environ.get("KAFKA_BOOTSTRAP_SERVERS")
-    topic = "test-topic"
 
     if not bootstrap_servers:
-        print("KAFKA_BOOTSTRAP_SERVERS environment variable is not set.")
+        logger.error("KAFKA_BOOTSTRAP_SERVERS environment variable is not set.")
         return
 
-    print(f"KAFKA_BOOTSTRAP_SERVERS: {bootstrap_servers}")
+    logger.info(f"KAFKA_BOOTSTRAP_SERVERS: {bootstrap_servers}")
+    logger.info(f"Kafka topic: {topic}")
 
-    # Create and start the Kafka producer.
     producer = AIOKafkaProducer(bootstrap_servers=bootstrap_servers)
-    await producer.start()
+
     try:
-        print(f"Producing messages to Kafka topic: {topic}")
-        print("Type your message and press Enter (type 'exit' to quit):")
+        await producer.start()
+    except Exception as e:
+        logger.error(f"Failed to start Kafka producer: {e}")
+        return
+
+    try:
+        logger.info("Type your message and press Enter (type 'exit' to quit):")
         loop = asyncio.get_running_loop()
         while True:
-            # Use run_in_executor to avoid blocking the event loop with input().
             print("> ", end="", flush=True)
             message = await loop.run_in_executor(None, sys.stdin.readline)
             message = message.strip()
+            
             if not message:
-                continue  # Ignore empty input.
+                continue
+            
             if message.lower() == "exit":
                 break
 
             try:
-                # Send the message asynchronously. Encode the string to bytes.
                 result = await producer.send_and_wait(topic, message.encode('utf-8'))
-                print(f"✅ Delivered message to {result.topic}-{result.partition}@{result.offset}")
+                logger.info(f"✅ Delivered message to {result.topic}-{result.partition}@{result.offset}")
             except Exception as e:
-                print(f"❌ Delivery failed: {e}")
+                logger.error(f"❌ Delivery failed: {e}")
+
     finally:
-        # Stop the producer to flush any pending messages.
         await producer.stop()
-        print("Kafka producer stopped.")
+        logger.info("Kafka producer stopped.")
 
 if __name__ == "__main__":
-    asyncio.run(produce())
+    parser = argparse.ArgumentParser(description="Kafka Producer")
+    parser.add_argument(
+        "--topic",
+        type=str,
+        default="test-topic",
+        help="Kafka topic to produce messages to (default: test-topic)",
+    )
+    args = parser.parse_args()
+    asyncio.run(produce(args.topic))
