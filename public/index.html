@@ -12,13 +12,19 @@
     <h1>Kafka Real-Time Consumer</h1>
   </header>
 
-  <!-- Topic Change Input -->
+  <!-- Topic dropdown container -->
   <div class="topic-change">
-    <input type="text" id="topicInput" placeholder="Enter new Kafka topic" />
-    <button id="changeTopicBtn">Change Topic</button>
+    <label for="topicSelect">Choose Kafka topic:</label>
+    <!-- Wrapper for select to anchor the custom arrow -->
+    <div class="select-wrapper">
+      <select id="topicSelect"></select>
+    </div>
   </div>
+
   <main>
-    <label id="currentTopicLabel"><strong>Current topic:</strong> <span id="currentTopic">Not set</span></label>
+    <label id="currentTopicLabel">
+      <strong>Current topic:</strong> <span id="currentTopic">Not set</span>
+    </label>
     <div class="content">
       <p class="subtitle">Messages from Kafka will appear below in real time:</p>
       <ul id="messages"></ul>
@@ -43,33 +49,48 @@
     ws.onopen = () => console.log("WebSocket connection established.");
     ws.onclose = () => console.log("WebSocket connection closed.");
 
-    document.getElementById("changeTopicBtn").addEventListener("click", async () => {
-      const topic = document.getElementById("topicInput").value.trim();
-      if (!topic) {
-        alert("Please enter a topic.");
-        return;
+    // Fetch topics from the backend and populate the dropdown
+    async function populateTopics() {
+      try {
+        const response = await fetch("/topics");
+        const data = await response.json();
+        const topicSelect = document.getElementById("topicSelect");
+        // Clear existing options if any
+        topicSelect.innerHTML = "";
+        data.topics.forEach(topic => {
+          const option = document.createElement("option");
+          option.value = topic;
+          option.textContent = topic;
+          topicSelect.appendChild(option);
+        });
+        // Set initial topic display using the first available topic
+        if (data.topics.length > 0) {
+          document.getElementById("currentTopic").textContent = data.topics[0];
+        }
+      } catch (error) {
+        console.error("Failed to fetch topics:", error);
       }
+    }
+
+    // Load topics on page load
+    populateTopics();
+
+    // Listen for changes on the dropdown to change the topic
+    document.getElementById("topicSelect").addEventListener("change", async (event) => {
+      const newTopic = event.target.value;
       try {
         const response = await fetch("/change_topic", {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify({ topic })
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ topic: newTopic })
         });
         const result = await response.json();
-        //alert(result.message);
-        document.getElementById("currentTopic").textContent = topic;
-        document.getElementById("messages").innerHTML = ""; // Clear messages
+        console.log(result.message);
+        document.getElementById("currentTopic").textContent = newTopic;
+        document.getElementById("messages").innerHTML = ""; // Clear messages when topic changes
       } catch (error) {
         console.error("Error changing topic:", error);
         alert("Failed to change topic.");
-      }
-    });
-
-    document.getElementById("topicInput").addEventListener("keyup", function (e) {
-      if (e.key === "Enter") {
-        document.getElementById("changeTopicBtn").click();
       }
     });
   </script>

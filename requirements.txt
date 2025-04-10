@@ -1,6 +1,7 @@
-aioconsole
-aiokafka
 confluent_kafka
+aiokafka
+AIOKafkaAdminClient
+aioconsole
 fastapi
 uvicorn
 websockets
