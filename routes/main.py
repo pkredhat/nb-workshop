@@ -21,16 +21,12 @@ def get_translation(country_code):
 def get_current_datetime():
     return datetime.utcnow().isoformat() + "Z"
 
-
-
 @main.route("/api/health", methods=["GET"])
 def health():
     try:
         return "OK", 200
     except Exception:
         return "Service Unhealthy", 500
-
-
 
 @main.route("/api/admin")
 def admin_panel():    
@@ -52,8 +48,6 @@ def admin_panel():
 def version():
     return "0.0.1", 200
 
-
-
 @main.route("/", methods=["GET"])
 def index():
 
@@ -66,27 +60,3 @@ def index():
     except Exception as e:
         abort(500, description=str(e))
     return Response(f"{translation} @ {current_time}", mimetype='text/plain')
-
-
-
-
-@main.route("/api/force500")
-def force_500():
-    abort(500, description="Intentional 500 error for demonstration purposes")
-
-@main.route("/api/force200")
-def force_200():
-    return "This is a forced 200 OK response.", 200
-
-@main.route('/api/check', methods=['POST'])
-def check_json():
-    # Try to parse the JSON body
-    data = request.get_json()
-
-    # Check if JSON was provided and if "musthave" is in the JSON object.
-    if not data or 'musthave' not in data:
-        # Aborting with a 500 error if "musthave" is missing
-        abort(500, description="'musthave' key missing in JSON body")
-    
-    # Return a 200 OK response with a simple JSON message if key is present.
-    return jsonify({"message": "'musthave' key received", "data": data}), 200
