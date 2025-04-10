@@ -1,12 +1,28 @@
 import os
 import sys
 import asyncio
-import logging
 import argparse
+import logging
+import colorlog
 from aiokafka import AIOKafkaProducer
+from aioconsole import ainput  # For non-blocking async input
 
-logging.basicConfig(level=logging.INFO, format="%(message)s")
-logger = logging.getLogger(__name__)
+# Set up colorful logging
+handler = colorlog.StreamHandler()
+handler.setFormatter(colorlog.ColoredFormatter(
+    "%(log_color)s%(message)s",
+    log_colors={
+        "DEBUG":    "cyan",
+        "INFO":     "green",
+        "WARNING":  "yellow",
+        "ERROR":    "red",
+        "CRITICAL": "bold_red",
+    }
+))
+logger = colorlog.getLogger(__name__)
+logger.addHandler(handler)
+logger.setLevel(logging.INFO)
+
 
 async def produce(topic: str):
     logger.info("Starting Kafka Producer...")
@@ -27,15 +43,13 @@ async def produce(topic: str):
         logger.error(f"❌ Failed to start Kafka producer: {e}")
         return
 
-
     try:
         logger.info("Type your message and press Enter (type 'exit' to quit):")
-        loop = asyncio.get_running_loop()
         while True:
-            print("> ", end="", flush=True)
             try:
-                message = await loop.run_in_executor(None, sys.stdin.readline)
-            except KeyboardInterrupt:
+                message = await ainput("> ")
+            except (EOFError, KeyboardInterrupt):
+                logger.info("✋ Cancelled by user (Ctrl+C)")
                 break
 
             message = message.strip()
@@ -51,12 +65,10 @@ async def produce(topic: str):
             except Exception as e:
                 logger.error(f"❌ Delivery failed: {e}")
 
-    except asyncio.CancelledError:
-        logger.info("✋ Cancelled by user (Ctrl+C)")
-
     finally:
         await producer.stop()
         logger.info("Kafka producer stopped.")
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Kafka Producer")
@@ -68,7 +80,16 @@ if __name__ == "__main__":
     )
     args = parser.parse_args()
 
+    async def main():
+        try:
+            await produce(args.topic)
+        except asyncio.CancelledError:
+            logger.info("✋ Cancelled by user (async)")
+        except Exception as e:
+            logger.error(f"Unexpected error: {e}")
+
     try:
-        asyncio.run(produce(args.topic))
-    except (KeyboardInterrupt, SystemExit):
+        asyncio.run(main())
+    except KeyboardInterrupt:
         print("\n👋 Producer stopped by user.")
+        sys.exit(0)
