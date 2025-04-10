@@ -16,12 +16,11 @@ async def consume(topic: str):
     print(f"Kafka topic: {topic}")
 
     consumer = AIOKafkaConsumer(
-        topic,
-        loop=asyncio.get_event_loop(),
-        bootstrap_servers=bootstrap_servers,
-        group_id=group_id,
-        auto_offset_reset='earliest'
-    )
+    topic,
+    bootstrap_servers=bootstrap_servers,
+    group_id=group_id,
+    auto_offset_reset='earliest'
+)
 
     await consumer.start()
     try:
@@ -46,3 +45,4 @@ if __name__ == "__main__":
         asyncio.run(consume(args.topic))
     except KeyboardInterrupt:
         print("\nStopped by user.")
+

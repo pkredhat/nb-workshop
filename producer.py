@@ -5,7 +5,7 @@ import logging
 import argparse
 from aiokafka import AIOKafkaProducer
 
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(level=logging.INFO, format="%(message)s")
 logger = logging.getLogger(__name__)
 
 async def produce(topic: str):
@@ -24,20 +24,24 @@ async def produce(topic: str):
     try:
         await producer.start()
     except Exception as e:
-        logger.error(f"Failed to start Kafka producer: {e}")
+        logger.error(f"❌ Failed to start Kafka producer: {e}")
         return
+
 
     try:
         logger.info("Type your message and press Enter (type 'exit' to quit):")
         loop = asyncio.get_running_loop()
         while True:
             print("> ", end="", flush=True)
-            message = await loop.run_in_executor(None, sys.stdin.readline)
+            try:
+                message = await loop.run_in_executor(None, sys.stdin.readline)
+            except KeyboardInterrupt:
+                break
+
             message = message.strip()
-            
+
             if not message:
                 continue
-            
             if message.lower() == "exit":
                 break
 
@@ -46,6 +50,9 @@ async def produce(topic: str):
                 logger.info(f"✅ Delivered message to {result.topic}-{result.partition}@{result.offset}")
             except Exception as e:
                 logger.error(f"❌ Delivery failed: {e}")
+
+    except asyncio.CancelledError:
+        logger.info("✋ Cancelled by user (Ctrl+C)")
 
     finally:
         await producer.stop()
@@ -60,4 +67,8 @@ if __name__ == "__main__":
         help="Kafka topic to produce messages to (default: test-topic)",
     )
     args = parser.parse_args()
-    asyncio.run(produce(args.topic))
+
+    try:
+        asyncio.run(produce(args.topic))
+    except (KeyboardInterrupt, SystemExit):
+        print("\n👋 Producer stopped by user.")
