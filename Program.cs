@@ -5,8 +5,10 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Hosting;
 using System.IO;
 using System.Collections.Generic;
+using Microsoft.AspNetCore.Mvc;
 
 var builder = WebApplication.CreateBuilder(args);
+builder.Services.AddHttpClient();
 var app = builder.Build();
 
 var port = Environment.GetEnvironmentVariable("PORT") ?? "8080";
@@ -34,7 +36,7 @@ app.MapGet("/api/health", () =>
 });
 
 // Admin panel endpoint
-app.MapGet("/api/admin", async (HttpContext context, IConfiguration config, HttpClient http) =>
+app.MapGet("/api/admin", async (HttpContext context, [FromServices] IConfiguration config, [FromServices] HttpClient http) =>
 {
     var password = context.Request.Query["password"].ToString();
 
@@ -69,7 +71,6 @@ app.MapGet("/api/admin", async (HttpContext context, IConfiguration config, Http
     }
 });
 
-
 app.MapGet("/", async (HttpContext context) =>
 {
     if (string.IsNullOrEmpty(countryCode))
@@ -89,7 +90,9 @@ app.MapGet("/", async (HttpContext context) =>
             if (translations.TryGetValue(countryCode.ToUpper(), out var translation))
             {
                 context.Response.StatusCode = 200;
-                await context.Response.WriteAsync(translation);
+                var timestamp = DateTime.UtcNow.ToString("o"); // ISO 8601 format
+                await context.Response.WriteAsync($"{translation} @ {timestamp}");
+                
             }
             else
             {
@@ -111,3 +114,10 @@ app.MapGet("/", async (HttpContext context) =>
 });
 
 app.Run($"http://0.0.0.0:{port}");
+
+
+// app.MapGet("/api/query", async (HttpContext context) =>{});
+// app.MapPost("/api/query", async (HttpContext context) =>{});
+// app.MapGet("/api/magic8", async (HttpContext context) =>{});
+
+public partial class Program { } // Add at the bottom of Program.cs
