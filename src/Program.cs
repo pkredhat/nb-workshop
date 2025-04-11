@@ -31,7 +31,7 @@ namespace ds_challenge_04
                 // or configure it properly if you have an SSL certificate set up.
             }
 
-            app.UseHttpsRedirection();
+            // app.UseHttpsRedirection();
             app.UseAuthorization();
 
             // Minimal API: map a GET endpoint at the root ("/")
@@ -48,27 +48,24 @@ namespace ds_challenge_04
 
             app.MapGet("/", (HttpContext context) =>
             {
-                // Get the COUNTRY environment variable.
-                var country = Environment.GetEnvironmentVariable("COUNTRY");
+                // Use the COUNTRY environment variable, or default to "EN" if it's not set.
+                var country = Environment.GetEnvironmentVariable("countryCode") ?? "EN";
 
-                // If COUNTRY is defined and is exactly 2 letters...
-                if (!string.IsNullOrEmpty(country) && country.Length == 2)
+                // Optionally, ensure the country string is exactly two characters; if not, default to "EN"
+                if (country.Length != 2)
                 {
-                    var key = country.ToUpper();
-                    if (translations.TryGetValue(key, out var translation))
-                    {
-                        // Return the translation.
-                        return Results.Text(translation);
-                    }
-                    else
-                    {
-                        // Return a 404 if translation is not available.
-                        return Results.Text("Translation not available for this country.", statusCode: 404);
-                    }
+                    country = "EN";
                 }
 
-                // Default response.
-                return Results.Text("Hello World!");
+                var key = country.ToUpper();
+                if (translations.TryGetValue(key, out var translation))
+                {
+                    return Results.Text(translation);
+                }
+                else
+                {
+                    return Results.Text("Translation not available for this country.", statusCode: 404);
+                }
             });
 
             // Map the attribute-based controllers.
