@@ -1,7 +1,7 @@
 apiVersion: batch/v1
 kind: CronJob
 metadata:
-  name: curl-random-cron
+  name: module5-curl
 spec:
   # Runs every minute (adjust to "*/1 * * * *")
   schedule: "*/1 * * * *"
@@ -10,11 +10,13 @@ spec:
       template:
         spec:
           containers:
-          - name: curl-random
-            image: quay.io/pknezevich/curl-cron:latest
+          - name: module5-curl-random
+            env:
+              - name: ENDPOINT
+                value: localhost:5000
+            image: default-route-openshift-image-registry.apps.nb-demo-01.6jz4.p1.openshiftapps.com/nb-config/module5-curl:latest
             # Optional: if your script requires no parameters,
             # you can rely on the CMD set in the image.
             # Otherwise, you can override with:
             # command: ["/bin/bash", "/opt/curl-cron.sh"]
           restartPolicy: OnFailure
-

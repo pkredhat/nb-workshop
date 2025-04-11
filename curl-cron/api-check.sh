@@ -1,4 +1,3 @@
-
 #!/bin/bash
 # curl_random.sh
 # Randomly send either a valid or an invalid POST request to /api/check
