@@ -13,7 +13,7 @@ components:
    endpoints:
    - name: https-python
      protocol: https
-     targetPort: 5001
+     targetPort: 5000
    - exposure: none
      name: debug
      targetPort: 5858
@@ -34,7 +34,7 @@ commands:
    workingDir: ${PROJECT_SOURCE}
   id: pip-install-requirements
 - exec:
-   commandLine: flask run --host=0.0.0.0 --port=5001
+   commandLine: flask run --host=0.0.0.0 --port=5000
    component: py
    group:
      isDefault: true
