@@ -1,16 +1,14 @@
 
-namespace ds_challenge_02;
+namespace ds_challenge_04;
 
 public class Program
 {
     public static void Main(string[] args)
     {
-        var builder = WebApplication.CreateBuilder(args);
-        builder.Services.AddHttpClient();
-        builder.Services.AddOpenApi();            
-        // Add services to the container.
+        var builder = WebApplication.CreateBuilder(args);        
         builder.Services.AddControllers();
-        // Add services to the container.
+        // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
+        builder.Services.AddOpenApi();
 
         var app = builder.Build();
         // Configure the HTTP request pipeline.
