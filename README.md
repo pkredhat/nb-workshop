@@ -8,7 +8,6 @@ This is a very quick/simple Python/Flask app that returns  Hello World in the co
 ## Setting Up Environment Variables
 
 > Set the $**COUNTRY_CODE** environment variable to change the language
-> Set the $**PORT** environment variable to change the port
 
 ##### Linux
 ```
@@ -125,4 +124,3 @@ XH=Molo  Lizwe!
 MY=မင်္ဂလာပါ  ကမ္ဘာ!  
 TI=ሰላም  ዓለም! 
 ```
-!evif esoht nosj.snoitalsnart eht porc dna tnenitnoc eno morf sedoc yrtnuoc evif esoohc !gge retsaE
