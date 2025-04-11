@@ -1,7 +1,7 @@
 metadata:
- description: Workspace devfile builder
- displayName: module5
- name: module5-app  
+ description: Devfile to assist with RH OpenTelemetry
+ displayName: RH Open Telemetry
+ name: module5-workspace
 schemaVersion: 2.2.2
 
 components:
@@ -19,9 +19,7 @@ components:
      targetPort: 5858
    env:   
    - name: DEBUG_PORT
-     value: "5858"
-   - name: KAFKA_BOOTSTRAP_SERVERS
-     value: "testuser1-kafka-kafka-bootstrap.testuser1-proj.svc.cluster.local"
+     value: "5858"  
    image: registry.access.redhat.com/ubi9/python-39:1-1739420387
    mountSources: true
   name: py

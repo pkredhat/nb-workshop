@@ -20,13 +20,12 @@ Tis application will return http error codes based on "mocked" JSON variables be
 ## Testing
 
 ### 200 OK
-curl -X POST http://localhost:5000/api/check \\
-     -H "Content-Type: application/json" \\
-     -d '{"musthave": "example", "other": "value"}'
-
+curl -X POST http://your-server-address/api/check \
+  -H "Content-Type: application/json" \
+  -d '{"date": "04/10/2025", "vendor": "acme", "amt": 30000, "amount": 30000}'
 
 
 ### 500 Abort
-curl -X POST http://localhost:5000/api/check \\
-     -H "Content-Type: application/json" \\
-     -d '{"notmusthave": "example"}'
+curl -X POST http://your-server-address/api/check \
+  -H "Content-Type: application/json" \
+  -d '{"date": "04/10/2025", "vendor": "acme", "amt": 2000, "amount": 2000}'
