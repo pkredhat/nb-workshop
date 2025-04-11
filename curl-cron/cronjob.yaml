@@ -13,7 +13,8 @@ spec:
           - name: module5-curl-random
             env:
               - name: ENDPOINT
-                value: localhost:5000
+                ### REPLACE THIS VALUE WITH YOUR UNIQUE SERVICE NAME i.e. nb-workshop-<your username> ###
+                value: <REPLACEME>:5000
             image: default-route-openshift-image-registry.apps.nb-demo-01.6jz4.p1.openshiftapps.com/nb-config/module5-curl:latest
             # Optional: if your script requires no parameters,
             # you can rely on the CMD set in the image.
