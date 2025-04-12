@@ -23,7 +23,21 @@ components:
 
 commands:
   - exec:
+      commandLine: dotnet clean
+      component: dotnet
+      group:
+        kind: build
+      workingDir: ${PROJECT_SOURCE}
+    id: dotnet-clean
+  - exec:
       commandLine: dotnet restore
+      component: dotnet
+      group:
+        kind: build
+      workingDir: ${PROJECT_SOURCE}
+    id: dotnet-restore
+  - exec:
+      commandLine: dotnet build
       component: dotnet
       group:
         kind: build

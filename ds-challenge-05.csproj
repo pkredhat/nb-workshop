@@ -4,7 +4,7 @@
     <TargetFramework>net9.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
-    <RootNamespace>ds_challenge_04</RootNamespace>
+    <RootNamespace>ds_challenge_05</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>

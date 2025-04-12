@@ -1,10 +1,9 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Hosting;
-using System;
-using System.Collections.Generic;
+using System.Text.Json.Serialization;
 
-namespace ds_challenge_04
+namespace ds_challenge_05
 {
     public class Program
     {
@@ -31,47 +30,48 @@ namespace ds_challenge_04
                 // or configure it properly if you have an SSL certificate set up.
             }
 
-            // app.UseHttpsRedirection();
             app.UseAuthorization();
-
-            // Minimal API: map a GET endpoint at the root ("/")
-            // Define the translations dictionary.
-            var translations = new Dictionary<string, string>
-            {
-                { "EN", "Hello World!" },
-                { "SP", "¡Hola Mundo!" },
-                { "FR", "Bonjour le monde!" },
-                { "DE", "Hallo Welt!" },
-                { "IT", "Ciao Mondo!" },
-                { "SW", "Hej världen!" }
-            };
-
-            app.MapGet("/", (HttpContext context) =>
-            {
-                // Use the COUNTRY environment variable, or default to "EN" if it's not set.
-                var country = Environment.GetEnvironmentVariable("countryCode") ?? "EN";
-
-                // Optionally, ensure the country string is exactly two characters; if not, default to "EN"
-                if (country.Length != 2)
-                {
-                    country = "EN";
-                }
-
-                var key = country.ToUpper();
-                if (translations.TryGetValue(key, out var translation))
-                {
-                    return Results.Text(translation);
-                }
-                else
-                {
-                    return Results.Text("Translation not available for this country.", statusCode: 404);
-                }
-            });
 
             // Map the attribute-based controllers.
             app.MapControllers();
 
+            // Minimal API endpoint for checking JSON.
+            app.MapPost("/api/check", async (HttpContext context) =>
+            {
+                // Deserialize the JSON from the request body into a CheckRequest object.
+                var request = await context.Request.ReadFromJsonAsync<CheckRequest>();
+
+                // Validate that the request body exists and that the "amount" property is provided.
+                if (request == null || !request.Amount.HasValue)
+                {
+                    context.Response.StatusCode = 500;
+                    await context.Response.WriteAsJsonAsync(new { description = "'amount' key missing in JSON body" });
+                    return;
+                }
+
+                double amt = request.Amount.Value;
+
+                // If the amount is less than 25000, return an error.
+                if (amt < 25000)
+                {
+                    context.Response.StatusCode = 500;
+                    await context.Response.WriteAsJsonAsync(new { description = "Invalid" });
+                }
+                else
+                {
+                    context.Response.StatusCode = 200;
+                    await context.Response.WriteAsJsonAsync(new { message = "Valid", data = request });
+                }
+            });
+
             app.Run();
         }
+    }
+
+    // Model used for deserializing the JSON data.
+    public class CheckRequest
+    {
+        [JsonPropertyName("amount")]
+        public double? Amount { get; set; }
     }
 }
