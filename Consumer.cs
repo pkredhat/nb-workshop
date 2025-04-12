@@ -7,10 +7,7 @@ class Consumer
     public static void Run()
     {
         Console.WriteLine("Starting Kafka Consumer...");
-        //string bootstrapServers = "localhost:9092";
-        //string bootstrapServers = "host.containers.internal:9092";
-        //string bootstrapServers = Environment.GetEnvironmentVariable("KAFKA_BOOTSTRAP_SERVERS");
-string bootstrapServers = "localhost:9092";  // Temporarily hardcode the value
+        string bootstrapServers = Environment.GetEnvironmentVariable("KAFKA_BOOTSTRAP_SERVERS");
 
         if (string.IsNullOrEmpty(bootstrapServers))Console.WriteLine("KAFKA_BOOTSTRAP_SERVERS environment variable is not set.");
         else Console.WriteLine($"KAFKA_BOOTSTRAP_SERVERS: {bootstrapServers}");
