@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/7.0.5/signalr.min.js"></script>
+</head>
+<body>
+    <h2>Kafka Real-Time Messages</h2>
+    <ul id="messages"></ul>
+    <script>
+        const connection = new signalR.HubConnectionBuilder()
+            .withUrl("/kafkaHub")
+            .build();
+
+        connection.start().catch(err => console.error(err));
+
+        connection.on("ReceiveMessage", function (message) {
+            const li = document.createElement("li");
+            li.textContent = message;
+            document.getElementById("messages").appendChild(li);
+        });
+    </script>
+</body>
+</html>
