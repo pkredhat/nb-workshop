@@ -4,22 +4,28 @@ using Confluent.Kafka;
 
 class Consumer
 {
-    public static void Run()
+    public static void Run(string topic)
     {
         Console.WriteLine("Starting Kafka Consumer...");
         string bootstrapServers = Environment.GetEnvironmentVariable("KAFKA_BOOTSTRAP_SERVERS");
 
-        if (string.IsNullOrEmpty(bootstrapServers))Console.WriteLine("KAFKA_BOOTSTRAP_SERVERS environment variable is not set.");
-        else Console.WriteLine($"KAFKA_BOOTSTRAP_SERVERS: {bootstrapServers}");
+        if (string.IsNullOrEmpty(bootstrapServers))
+        {
+            Console.WriteLine("KAFKA_BOOTSTRAP_SERVERS environment variable is not set.");
+            return;
+        }
+        else
+        {
+            Console.WriteLine($"KAFKA_BOOTSTRAP_SERVERS: {bootstrapServers}");
+        }
 
-        string topic = "test-topic";
         string groupId = "test-group";
 
         var config = new ConsumerConfig
         {
             BootstrapServers = bootstrapServers,
             GroupId = groupId,
-	    SecurityProtocol = SecurityProtocol.Plaintext,
+            SecurityProtocol = SecurityProtocol.Plaintext,
             AutoOffsetReset = AutoOffsetReset.Earliest
         };
 

@@ -4,26 +4,13 @@ Sample console application that connects to your local Kafka instance using Dotn
      
 ## Usage
 ```
-Usage: dotnet run <produce|consume>
+To run the consumer: dotnet run -- consumer --topic <topicName>
+To run the producer: dotnet run -- producer --topic <topicName>
+
 ```
 
 $~$ 
 
-
-## Building Container Images 
-From your Root Folder
-
-#### With Podman
-```
-podman build -t <your image name> .
-```
-#### With Docker
-```
-docker build -t <your image name> .
-```
- ##### *NOTE: Modify the 'ENV KAFKA_BOOTSTRAP_SERVERS=<server>' variable in the Dockerfile to set your Kafka Server
-
-  $~$
 
 ## Setting Up Environment Variables
 
@@ -52,4 +39,3 @@ echo $PATH to verify
 ```
 
   $~$
-

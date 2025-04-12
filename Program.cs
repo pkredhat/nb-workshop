@@ -3,25 +3,40 @@ using System.Threading.Tasks;
 
 class Program
 {
-    static async Task Main(string[] args)  // ✅ Change Main to async
+    static async Task Main(string[] args)
     {
-        if (args.Length == 0)
+        // Ensure a mode argument is provided ("produce" or "consume").
+        if (args.Length == 0 || string.IsNullOrWhiteSpace(args[0]))
         {
-            Console.WriteLine("Usage: dotnet run <produce|consume>");
+            Console.WriteLine("Usage: dotnet run <produce|consume> [--topic <topic>]");
             return;
         }
 
-        if (args[0] == "produce")
+        // Default topic value
+        string topic = "test-topic";
+
+        // Parse additional command-line arguments for the optional --topic parameter.
+        for (int i = 1; i < args.Length; i++)
         {
-            await Producer.Run();  // ✅ Await the async method
+            if (args[i] == "--topic" && i + 1 < args.Length)
+            {
+                topic = args[i + 1];
+                i++;  // Skip the topic value since it's already processed
+            }
         }
-        else if (args[0] == "consume")
+
+        // Select mode.
+        if (args[0].Equals("produce", StringComparison.OrdinalIgnoreCase))
         {
-            Consumer.Run();
+            await Producer.Run(topic);
+        }
+        else if (args[0].Equals("consume", StringComparison.OrdinalIgnoreCase))
+        {
+            Consumer.Run(topic);
         }
         else
         {
-            Console.WriteLine("Invalid argument. Use 'produce' or 'consume'.");
+            Console.WriteLine("Usage: dotnet run <produce|consume> [--topic <topic>]");
         }
     }
-} 
+}

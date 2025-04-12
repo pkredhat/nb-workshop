@@ -4,11 +4,11 @@ using Confluent.Kafka;
 
 class Producer
 {
-    public static async Task Run()  // ✅ Make method async
+    // The Run method accepts an optional topic parameter (default: "test-topic").
+    public static async Task Run(string topic = "test-topic")
     {
         Console.WriteLine("Starting Kafka Producer...");
         string? bootstrapServers = Environment.GetEnvironmentVariable("KAFKA_BOOTSTRAP_SERVERS");
-        string topic = "test-topic";
 
         if (string.IsNullOrEmpty(bootstrapServers))
         {
