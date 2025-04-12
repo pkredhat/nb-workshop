@@ -1,7 +1,7 @@
 metadata:
- description: Devfile to assist with serverless project
- displayName: RH Serverless
- name: module4-dotnet-workspace
+ description: Devfile to assist with Open Telemetry
+ displayName: RH Open Telemetry
+ name: module5-dotnet-workspace
 schemaVersion: 2.2.2
 
 components:
