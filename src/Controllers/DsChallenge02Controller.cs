@@ -80,7 +80,7 @@ public class AdminController : ControllerBase
 }
 
 [ApiController]
-[Route("api/translate")]
+[Route("/")]
 public class TranslationController : ControllerBase
 {
 
@@ -133,7 +133,6 @@ public class TranslationController : ControllerBase
         }
     }
 }
-
 
 
 // TODO's
