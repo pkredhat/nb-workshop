@@ -21,4 +21,4 @@ components:
      value: http://0.0.0.0:5000
    image: image-registry.openshift-image-registry.svc.cluster.local:5000/openshift/devspaces-dotnet-python:latest
    mountSources: true
-  name: py
+  name: dotnet
