@@ -4,8 +4,9 @@ Sample console application that connects to your local Kafka instance using Dotn
      
 ## Usage
 ```
-To run the consumer: dotnet run -- consumer --topic <topicName>
-To run the producer: dotnet run -- producer --topic <topicName>
+To run the consumer: dotnet run -- consume --topic <topicName>
+
+To run the producer: dotnet run -- produce --topic <topicName>
 
 ```
 

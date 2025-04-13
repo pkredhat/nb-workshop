@@ -8,8 +8,8 @@ using Confluent.Kafka;
 public class KafkaConsumerService : BackgroundService
 {
     private readonly IHubContext<KafkaHub> _hubContext;
-    private readonly string _bootstrapServers = Environment.GetEnvironmentVariable("KAFKA_BOOTSTRAP_SERVERS");
-    private readonly string _topic = "test-topic";
+    // Keep track of the last subscribed topic.
+    private string _currentSubscribedTopic = KafkaTopicManager.CurrentTopic;
 
     public KafkaConsumerService(IHubContext<KafkaHub> hubContext)
     {
@@ -18,19 +18,20 @@ public class KafkaConsumerService : BackgroundService
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
+        string groupId = $"consumer-{Guid.NewGuid().ToString()}-group";
         var config = new ConsumerConfig
         {
-            BootstrapServers = _bootstrapServers,
-            GroupId = "test-group",
+            BootstrapServers = Environment.GetEnvironmentVariable("KAFKA_BOOTSTRAP_SERVERS"),
+            GroupId = groupId,   
             AutoOffsetReset = AutoOffsetReset.Earliest
         };
 
         using var consumer = new ConsumerBuilder<Ignore, string>(config).Build();
-        consumer.Subscribe(_topic);
+        // Initially subscribe to the topic from the topic manager.
+        _currentSubscribedTopic = KafkaTopicManager.CurrentTopic;
+        consumer.Subscribe(_currentSubscribedTopic);
+        Console.WriteLine($"Kafka Consumer started and subscribed to topic: {_currentSubscribedTopic}");
 
-        Console.WriteLine("Kafka Consumer started and subscribed to topic.");
-
-        // Run Kafka consumer asynchronously
         await Task.Run(() => StartConsuming(consumer, stoppingToken), stoppingToken);
     }
 
@@ -40,22 +41,35 @@ public class KafkaConsumerService : BackgroundService
         {
             try
             {
-                Console.WriteLine("Waiting for messages...");
-                var consumeResult = consumer.Consume(stoppingToken);
-
-                if (consumeResult != null)
+                // Check if the topic has changed.
+                var desiredTopic = KafkaTopicManager.CurrentTopic;
+                if (!string.Equals(desiredTopic, _currentSubscribedTopic, StringComparison.OrdinalIgnoreCase))
                 {
-                    Console.WriteLine($"Received message: {consumeResult.Message.Value}");
-                    await _hubContext.Clients.All.SendAsync("ReceiveMessage", consumeResult.Message.Value);
+                    _currentSubscribedTopic = desiredTopic;
+                    consumer.Subscribe(_currentSubscribedTopic);
+                    Console.WriteLine($"Re-subscribed to new topic: {_currentSubscribedTopic}");
+                }
+
+                // Wait for a message with a timeout of, say, 2 seconds.
+                var result = consumer.Consume(TimeSpan.FromSeconds(2));
+                if (result != null)
+                {
+                    Console.WriteLine($"Received message from Kafka: {result.Message.Value}");
+                    await _hubContext.Clients.All.SendAsync("ReceiveMessage", result.Message.Value, stoppingToken);
                 }
             }
             catch (ConsumeException ex)
             {
-                Console.WriteLine($"Kafka Error: {ex.Error.Reason}");
+                Console.WriteLine($"Kafka error: {ex.Error.Reason}");
+            }
+            catch (OperationCanceledException)
+            {
+                // Graceful shutdown
+                break;
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Unexpected Error: {ex.Message}");
+                Console.WriteLine($"Unexpected error: {ex.Message}");
             }
         }
 
