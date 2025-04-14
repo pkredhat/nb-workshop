@@ -12,7 +12,7 @@ if [ $(( RANDOM % 2 )) -eq 0 ]; then
   echo "$(date): Sending valid request"
   # Valid request: includes the required "musthave" key in JSON.
   curl -s -X POST -H "Content-Type: application/json" \
-       -d '{ "customerName" : "ACME", "dateOfTransaction" : "04/17/2025", "amount": 20000 }' \
+       -d '{ "customerName" : "ACME", "dateOfTransaction" : "04/17/2025", "amount": 30000 }' \
        http://$1/api/check -v
   echo ""  # Optional: adds a newline for clarity.
 else
