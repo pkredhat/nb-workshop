@@ -14,8 +14,8 @@ def index():
 def check_json():
     # Try to parse the JSON body
     data = request.get_json()    
-    if not data or 'amt' not in data:
-        abort(500, description="'amt' key missing in JSON body")
+    if not data or 'amount' not in data:
+        abort(500, description="'amount' key missing in JSON body")
     try:
         amt = float(data.get('amount'))
     except (ValueError, TypeError):
