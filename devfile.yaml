@@ -19,7 +19,7 @@ components:
      targetPort: 5858
    env:
    - name: ADMIN
-     value: "opensesame.nb-config.svc.cluster.local:3000/opensesame"   
+     value: "http://opensesame.nb-config.svc.cluster.local:3000/opensesame"   
    - name: DEBUG_PORT
      value: "5858"
    image: image-registry.openshift-image-registry.svc.cluster.local:5000/openshift/devspaces-dotnet-python:latest
