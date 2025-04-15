@@ -3,6 +3,6 @@ metadata:
   name: module3-python-workspace
 
 components:
-  - name: dot-80-tools-container
+  - name: module3-python-container
     container:
       image: image-registry.openshift-image-registry.svc.cluster.local:5000/openshift/devspaces-dotnet-python:latest
