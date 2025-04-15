@@ -8,6 +8,12 @@ schemaVersion: 2.2.2
 
 components:
 - container:
+   image: registry.access.redhat.com/ubi9/python-39:1-1739420387
+   mountSources: true
+   memoryRequest: '1Gi'
+   memoryLimit: '2Gi'
+   cpuRequest: '0.5'
+   cpuLimit: '1'
    args:
    - tail
    - -f
@@ -23,9 +29,7 @@ components:
    - name: DEBUG_PORT
      value: "5858"
    - name: KAFKA_BOOTSTRAP_SERVERS
-     value: "testuser1-kafka-kafka-bootstrap.testuser1-proj.svc.cluster.local"
-   image: registry.access.redhat.com/ubi9/python-39:1-1739420387
-   mountSources: true
+     value: "pk-kafka-kafka-bootstrap.pk-world.svc.cluster.local"
   name: py
 
 commands:
