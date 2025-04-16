@@ -25,7 +25,7 @@ components:
      value: "5858"
    - name: countryCode
      value: "en"
-   image: registry.access.redhat.com/ubi9/python-39:1-1739420387
+   image: image-registry.openshift-image-registry.svc.cluster.local:5000/openshift/devspaces-dotnet-python:latest
    mountSources: true
   name: py
 
