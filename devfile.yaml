@@ -11,10 +11,10 @@ components:
    - -f
    - /dev/null
    endpoints:
-   - name: https-python-5000
+   - name: https-py-5000
      protocol: https
      targetPort: 5000
-   - name: https-python-5001
+   - name: https-py-5001
      protocol: https
      targetPort: 5001
    - exposure: none
