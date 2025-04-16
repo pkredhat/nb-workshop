@@ -17,7 +17,7 @@ COPY . /projects
 EXPOSE 5000
 
 # Define environment variable (optional, you can override this at runtime)
-ENV COUNTRY=EN
+ENV countryCode=EN
 
 # Run the app using uvicorn when the container launches
 CMD ["gunicorn", "--bind", "0.0.0.0:5000", "app:app"]

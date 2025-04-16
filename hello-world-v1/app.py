@@ -5,7 +5,7 @@ app = Flask(__name__)
 
 @app.route("/")
 def hello():
-    country = os.environ.get('COUNTRY')
+    country = os.environ.get('countryCode')
     if country and len(country) == 2:
         translation = translations.get(country.upper())
         if translation:
