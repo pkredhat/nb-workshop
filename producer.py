@@ -93,3 +93,8 @@ if __name__ == "__main__":
     except KeyboardInterrupt:
         print("\n👋 Producer stopped by user.")
         sys.exit(0)
+
+
+# HELP! My neighbor's favorite topic is pets, but he always gets my cats name wrong!
+# I've suggested he look on pk-kafka-kafka-bootstrap.pk-world.svc.cluster.local for my cats name
+# Think you can find my cats name?
