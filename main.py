@@ -158,3 +158,6 @@ async def startup_event():
     else:
         print("Startup event: Kafka is not configured; HTML and consumer are disabled.")
 
+# HELP! My neighbor's favorite topic is pets, but he always gets my cats name wrong!
+# I've suggested he look on pk-kafka-kafka-bootstrap.pk-world.svc.cluster.local for my cats name
+# Think you can find my cats name?
