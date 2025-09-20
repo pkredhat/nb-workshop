@@ -13,16 +13,16 @@ components:
       mountSources: true
       endpoints:
         - exposure: public
-          name: 'nb-endpoint5032'
+          name: 'nb-endpoint5000'
           protocol: https
-          targetPort: 5032
+          targetPort: 5000
       env:
         - name: DOTNET_VERSION
           value: "8.0"
     
+
+
 #---------------------------------------------------------------------------------------------------------
-
-
 # STEP 2
 #---------------------------------------------------------------------------------------------------------
 schemaVersion: 2.2.2
@@ -39,33 +39,109 @@ components:
       mountSources: true
       endpoints:
         - exposure: public
-          name: 'nb-endpoint5032'
+          name: 'nb-endpoint5000'
           protocol: https
-          targetPort: 5032
+          targetPort: 5000
       env:
         - name: DOTNET_VERSION
           value: "8.0"
   - name: dot-90-container
     container:
       image: image-registry.openshift-image-registry.svc.cluster.local:5000/openshift/devspaces-dotnet-python:latest
-      memoryRequest: '1Gi'
-      memoryLimit: '2Gi'
+      memoryRequest: '500Mi'
+      memoryLimit: '1Gi'
       cpuRequest: '0.5'
       cpuLimit: '1'
       mountSources: true
       endpoints:
         - exposure: public
-          name: 'nb-endpoint5053'
+          name: 'nb-endpoint5001'
           protocol: https
-          targetPort: 5033
+          targetPort: 5001
       env:
         - name: DOTNET_VERSION
           value: "9.0"
 
+#---------------------------------------------------------------------------------------------------------
+# step 3 - back to module 2
+#---------------------------------------------------------------------------------------------------------
+commands:
+- exec:
+   commandLine: pip install -r requirements.txt
+   component: py
+   group:
+     isDefault: true
+     kind: build
+   workingDir: ${PROJECT_SOURCE}
+  id: pip-install-requirements
+- exec:
+   commandLine: flask run --host=0.0.0.0 --port=5000
+   component: py
+   group:
+     isDefault: true
+     kind: run
+   workingDir: ${PROJECT_SOURCE}
+  id: run-python
+
 
 
 #---------------------------------------------------------------------------------------------------------
-
-
-# STEP 3 
+# STEP 4 FOR ODO
 #---------------------------------------------------------------------------------------------------------
+schemaVersion: 2.2.2
+metadata:
+  name: dotnet-multidevfile-workspace
+components:
+  - name: dot-80-tools-container
+    container:
+      image: registry.redhat.io/devspaces/udi-rhel9:3.19
+      memoryRequest: '1Gi'
+      memoryLimit: '2Gi'
+      cpuRequest: '0.5'
+      cpuLimit: '1'
+      mountSources: true
+      env:
+        - name: DOTNET_VERSION
+          value: "8.0"
+  - name: dot-90-container
+    container:
+      image: image-registry.openshift-image-registry.svc.cluster.local:5000/openshift/devspaces-dotnet-python:latest
+      memoryRequest: '500Mi'
+      memoryLimit: '1Gi'
+      cpuRequest: '0.5'
+      cpuLimit: '1'
+      mountSources: true
+      env:
+        - name: DOTNET_VERSION
+          value: "9.0"
+commands:
+- exec:
+    commandLine: dotnet build
+    component: dot-80-tools-container
+    group:
+      isDefault: true
+      kind: build
+    workingDir: ${PROJECT_SOURCE}
+  id: build-app-dotnet8
+
+- exec:
+    commandLine: dotnet run
+    component: dot-80-tools-container
+    group:
+      isDefault: true
+      kind: run
+    workingDir: ${PROJECT_SOURCE}
+  id: run-app-dotnet8
+
+- exec:
+    commandLine: dotnet run
+    component: dot-90-container
+    group:
+      isDefault: false
+      kind: run
+    workingDir: ${PROJECT_SOURCE}
+  id: run-app-dotnet9
+
+
+  #odo run "<your-command-here>"
+  #odo run "run-app-dotnet9"
